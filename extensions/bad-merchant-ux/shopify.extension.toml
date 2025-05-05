@@ -1,0 +1,59 @@
+# Learn more about configuring your Customer account UI extension:
+# https://shopify.dev/api/customer-account-ui-extensions/unstable/configuration
+
+# The version of APIs your extension will receive. Learn more:
+# https://shopify.dev/docs/api/usage/versioning
+api_version = "2025-04"
+
+[[extensions]]
+name = "bad-merchant-ux"
+handle = "bad-merchant-ux"
+uid = "c7670e54-45bc-521f-c0e4-6d1ec35c2a24b4607541"
+type = "ui_extension"
+
+
+# Controls where in Shopify your extension will be injected,
+# and the file that contains your extension’s source code. Learn more:
+# https://shopify.dev/docs/api/customer-account-ui-extensions/unstable/extension-targets-overview
+
+[[extensions.targeting]]
+# module = "./src/OrderListPageExtension.tsx"
+module = "./src/OrderListPageExtension.tsx"
+target = "customer-account.order-index.block.render"
+default_placement = "ORDER_INDEX"
+
+[extensions.capabilities]
+# Gives your extension access to directly query Shopify’s storefront API.
+# https://shopify.dev/docs/api/customer-account-ui-extensions/unstable/configuration#api-access
+api_access = true
+
+# Gives your extension access to make external network calls, using the
+# JavaScript `fetch()` API. Learn more:
+# https://shopify.dev/docs/api/customer-account-ui-extensions/unstable/configuration#network-access
+network_access = true
+
+[[extensions.settings.fields]]
+key = "metafield_namespace"
+type = "single_line_text_field"
+name = "Metafield namespace (required)"
+description = "Enter the namespace for the metafield that contains the wishlist items."
+
+[[extensions.settings.fields.validations]]
+name = "min"
+value = "3"
+
+[[extensions.settings.fields]]
+key = "metafield_key"
+type = "single_line_text_field"
+name = "Metafield key (required)"
+description = "Enter the key for the metafield that contains the wishlist items."
+
+[[extensions.settings.fields.validations]]
+name = "min"
+value = "2"
+
+[[extensions.settings.fields]]
+key = "show_remove_button"
+type = "boolean"
+name = "Show remove button?"
+description = "If disabled, the add to remove button will not be shown for each wishlist item. Enabled by default."
