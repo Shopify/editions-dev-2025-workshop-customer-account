@@ -196,52 +196,64 @@ function WishlistedItems() {
           </BlockStack>
         </Card>
       )}
-      {/* Good UX - tells merchants in the editor when there is a missing required setting */}
-      {isInEditor && (!metaFieldNamespace || !metaFieldKey) && (
-        <>
-          <Banner status="warning">
-            <Text>
-              Missing required settings. Please provide a metafield namespace
-              and key in the app block settings. The following is a preview -
-              this app block will not be visible to customers until you provide
-              the required settings.
-            </Text>
-          </Banner>
-          <BlockSpacer spacing="loose" />
-        </>
-      )}
-      <Grid
-        columns={Style.default(["fill"])
-          .when({ viewportInlineSize: { min: "small" } }, ["fill", "fill"])
-          .when({ viewportInlineSize: { min: "medium" } }, [
-            "fill",
-            "fill",
-            "fill",
-          ])}
-        spacing="loose"
-        rows="auto"
-      >
-        {isLoading && (
-          <WishlistItem
-            product={null}
-            isLoading={isLoading}
-            showRemoveButton={showRemoveButton as boolean}
-            onRemoveClick={() => {}}
-          />
+      <Card padding>
+        {/* Good UX - tells merchants in the editor when there is a missing required setting */}
+        {isInEditor && (!metaFieldNamespace || !metaFieldKey) && (
+          <>
+            <Banner status="warning">
+              <Text>
+                Missing required settings. Please provide a metafield namespace
+                and key in the app block settings. The following is a preview -
+                this app block will not be visible to customers until you
+                provide the required settings.
+              </Text>
+            </Banner>
+            <BlockSpacer spacing="loose" />
+          </>
         )}
-        {!isLoading &&
-          wishlist.map((product) => (
+        <Grid
+          columns={Style.default(["fill"])
+            .when({ viewportInlineSize: { min: "extraSmall" } }, [
+              "fill",
+              "fill",
+            ])
+            .when({ viewportInlineSize: { min: "small" } }, [
+              "fill",
+              "fill",
+              "fill",
+            ])
+            .when({ viewportInlineSize: { min: "medium" } }, [
+              "fill",
+              "fill",
+              "fill",
+              "fill",
+            ])}
+          spacing="loose"
+          overflow="visible"
+          rows="auto"
+        >
+          {isLoading && (
             <WishlistItem
-              key={product.id}
-              product={product}
-              isLoading={false}
+              product={null}
+              isLoading={isLoading}
               showRemoveButton={showRemoveButton as boolean}
-              onRemoveClick={() => {
-                removeItemFromWishlist(wishlistedProductIds, product.id);
-              }}
+              onRemoveClick={() => {}}
             />
-          ))}
-      </Grid>
+          )}
+          {!isLoading &&
+            wishlist.map((product) => (
+              <WishlistItem
+                key={product.id}
+                product={product}
+                isLoading={false}
+                showRemoveButton={showRemoveButton as boolean}
+                onRemoveClick={() => {
+                  removeItemFromWishlist(wishlistedProductIds, product.id);
+                }}
+              />
+            ))}
+        </Grid>
+      </Card>
     </View>
   );
 }

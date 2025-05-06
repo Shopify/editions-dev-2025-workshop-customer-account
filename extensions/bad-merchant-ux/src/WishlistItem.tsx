@@ -1,18 +1,18 @@
 import {
-  ResourceItem,
-  ImageGroup,
   Button,
+  Icon,
+  Grid,
   View,
   BlockStack,
-  Heading,
   InlineStack,
   Image,
   useApi,
   Card,
   SkeletonImage,
   SkeletonTextBlock,
+  Text,
 } from "@shopify/ui-extensions-react/customer-account";
-import { Product } from "./types";
+import type { Product } from "./types";
 
 type Props = {
   isLoading: boolean;
@@ -45,43 +45,51 @@ export default function WishlistItem({
   }
 
   return (
-    <ResourceItem
-      key={product.id}
-      accessibilityLabel={product.title}
-      onPress={() => {}}
-      actionLabel={showRemoveButton ? "Remove" : undefined}
-      action={
-        showRemoveButton && (
-          <Button kind="primary" appearance="critical" onPress={onRemoveClick}>
-            Remove
-          </Button>
-        )
-      }
+    <Grid
+      rows={["auto", "fill", "auto", "auto"]}
+      cornerRadius={"base"}
+      padding={"base"}
+      background={"subdued"}
+      spacing={"base"}
     >
-      <ImageGroup totalItems={1}>
-        {product.images.nodes[0]?.url ? (
-          <Image source={product.images.nodes[0]?.url} />
-        ) : null}
-      </ImageGroup>
-      <View padding={["tight", "none"]}>
-        <BlockStack spacing="extraTight">
-          <Heading level={3}>{product.title}</Heading>
+      {product.images.nodes[0]?.url ? (
+        <Image
+          cornerRadius={"tight"}
+          // todo placeholder image if no image is available
+          source={product.images.nodes[0]?.url}
+          fit="cover"
+          aspectRatio={1}
+        />
+      ) : null}
 
-          <InlineStack blockAlignment="center">
-            {product?.priceRange ? (
-              <Heading level={3}>
-                {i18n.formatCurrency(
-                  Number(product.priceRange.minVariantPrice.amount),
-                  {
-                    currency: product.priceRange.minVariantPrice.currencyCode,
-                    currencyDisplay: "narrowSymbol",
-                  },
-                )}
-              </Heading>
-            ) : null}
+      <Text>{product.title}</Text>
+      <Text>
+        {product.priceRange
+          ? i18n.formatCurrency(
+              Number(product.priceRange.minVariantPrice.amount),
+              {
+                currency: product.priceRange.minVariantPrice.currencyCode,
+                currencyDisplay: "narrowSymbol",
+              },
+            )
+          : null}
+      </Text>
+      <Grid columns={["fill", "auto"]} spacing={"tight"}>
+        <Button kind="secondary">
+          <InlineStack spacing="extraTight" blockAlignment="center">
+            <Icon source="cart"></Icon>
+            <Text>Buy now</Text>
           </InlineStack>
-        </BlockStack>
-      </View>
-    </ResourceItem>
+        </Button>
+
+        <Button
+          kind="secondary"
+          onPress={onRemoveClick}
+          accessibilityLabel="Remove"
+        >
+          <Icon source="delete"></Icon>
+        </Button>
+      </Grid>
+    </Grid>
   );
 }
