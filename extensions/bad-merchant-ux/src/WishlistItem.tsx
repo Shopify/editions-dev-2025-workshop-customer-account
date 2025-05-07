@@ -58,17 +58,19 @@ export default function WishlistItem({
         <Button kind="secondary" to={`${shopUrl}/products/${product.handle}`}>
           <InlineStack spacing="extraTight" blockAlignment="center">
             <Icon source="cart"></Icon>
-            <Text>Buy now</Text>
+            <Text>{i18n.translate("buyNow")}</Text>
           </InlineStack>
         </Button>
 
-        <Button
-          kind="secondary"
-          onPress={onRemoveClick}
-          accessibilityLabel="Remove"
-        >
-          <Icon source="delete"></Icon>
-        </Button>
+        {showRemoveButton && (
+          <Button
+            kind="secondary"
+            onPress={onRemoveClick}
+            accessibilityLabel={i18n.translate("remove")}
+          >
+            <Icon source="delete"></Icon>
+          </Button>
+        )}
       </Grid>
     </Grid>
   );

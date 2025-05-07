@@ -12,6 +12,7 @@ import {
   useExtension,
   useSettings,
   useAuthenticatedAccountCustomer,
+  useApi,
 } from "@shopify/ui-extensions-react/customer-account";
 import { useState } from "react";
 import type { Product, Shop } from "./types";
@@ -98,7 +99,7 @@ async function fetchPreviewProducts() {
   );
 
   const data = await response.json();
-  return data?.data?.products?.nodes;
+  return data?.data?.products?.nodes.filter((node) => node !== null);
 }
 
 async function fetchProducts(productIds?: string[]) {
@@ -115,7 +116,7 @@ async function fetchProducts(productIds?: string[]) {
 
   const data = await response.json();
 
-  return data?.data?.nodes;
+  return data?.data?.nodes.filter((node) => node !== null);
 }
 
 function WishlistedItems({
@@ -132,7 +133,7 @@ function WishlistedItems({
   } = useSettings();
   const { editor } = useExtension();
   const { id: customerId } = useAuthenticatedAccountCustomer();
-
+  const { i18n } = useApi();
   const [wishlist, setWishlist] = useState<Product[]>(initialWishlist);
   const wishlistedProductIds = wishlist.map((product) => product.id);
 
@@ -193,8 +194,8 @@ function WishlistedItems({
       {wishlist.length === 0 && (
         <Card padding>
           <BlockStack inlineAlignment="center">
-            <Heading level={2}>Your wishlist is empty</Heading>
-            <Text>No items in your wishlist</Text>
+            <Heading level={2}>{i18n.translate("wishlistEmpty.title")}</Heading>
+            <Text>{i18n.translate("wishlistEmpty.description")}</Text>
           </BlockStack>
         </Card>
       )}

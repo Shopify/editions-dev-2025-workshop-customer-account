@@ -1,3 +1,8 @@
 {
-  "earnPoints": "You've earned 1,000 points from this order. You've been upgraded to Platinum tier."
+  "buyNow": "Buy now",
+  "remove": "Remove",
+  "wishlistEmpty": {
+    "title": "Your wishlist is empty",
+    "description": "No items in your wishlist"
+  }
 }
