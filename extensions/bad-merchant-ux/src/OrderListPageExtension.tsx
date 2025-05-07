@@ -36,11 +36,11 @@ function WishlistedItems() {
   } = useSettings();
   const { editor } = useExtension();
   const { id: customerId } = useAuthenticatedAccountCustomer();
-  const [wishlistedProductIds, setWishlistedProductIds] = useState<string[]>(
-    [],
-  );
+
   const [wishlist, setWishlist] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const wishlistedProductIds = wishlist.map((product) => product.id);
 
   const isInEditor = editor?.type === "checkout";
 
@@ -120,9 +120,6 @@ function WishlistedItems() {
             return;
           }
           setWishlist(data.data.products.nodes);
-          setWishlistedProductIds(
-            data.data.products.nodes.map((product) => product.id),
-          );
           setIsLoading(false);
           return;
         }
@@ -131,7 +128,6 @@ function WishlistedItems() {
           return;
         }
         setWishlist(data.data.nodes);
-        setWishlistedProductIds(data.data.nodes.map((product) => product.id));
         setIsLoading(false);
       })
       .catch(console.error);
