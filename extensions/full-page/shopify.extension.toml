@@ -1,0 +1,13 @@
+
+api_version = "2025-04"
+[[extensions]]
+name = "Full Page"
+handle = "full-page"
+type = "ui_extension"
+uid = "f4478831-cbc1-4bfc-a33e-d58cada1df31"
+
+# Only 1 target can be specified for each Admin action extension
+[[extensions.targeting]]
+module = "./src/FullPageExtension.tsx"
+target = "customer-account.page.render"
+

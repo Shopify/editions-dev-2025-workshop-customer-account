@@ -4,5 +4,7 @@
   "wishlistEmpty": {
     "title": "Your wishlist is empty",
     "description": "No items in your wishlist"
-  }
+  },
+  "goToWishlist": "Go to wishlist",
+  "heading": "Wishlist"
 }

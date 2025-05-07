@@ -56,4 +56,11 @@ value = "2"
 key = "show_remove_button"
 type = "boolean"
 name = "Show remove button?"
-description = "If disabled, the add to remove button will not be shown for each wishlist item. Enabled by default."
+description = "If disabled, the add to remove button will not be shown for each wishlist item."
+
+[[extensions.settings.fields]]
+key = "show_full_page_button"
+type = "boolean"
+name = "Show full page button?"
+description = "If enabled, a button that leads to the full page will be shown."
+

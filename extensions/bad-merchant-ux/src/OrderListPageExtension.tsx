@@ -7,6 +7,7 @@ import {
   Style,
   Card,
   Text,
+  Button,
   BlockSpacer,
   Banner,
   useExtension,
@@ -126,11 +127,16 @@ function WishlistedItems({
   initialWishlist: Product[];
   shopData: Shop;
 }) {
-  const {
-    metafield_namespace: metaFieldNamespace = "custom",
-    metafield_key: metaFieldKey = "wishlist",
-    show_remove_button: showRemoveButton = true,
+  let {
+    metafield_namespace: metaFieldNamespace,
+    metafield_key: metaFieldKey,
+    show_remove_button: showRemoveButton,
+    show_full_page_button: showFullPageButton,
   } = useSettings();
+
+  showRemoveButton = showRemoveButton ?? true;
+  showFullPageButton = showFullPageButton ?? true;
+
   const { editor } = useExtension();
   const { id: customerId } = useAuthenticatedAccountCustomer();
   const { i18n } = useApi();
@@ -189,7 +195,14 @@ function WishlistedItems({
 
   return (
     <View>
-      <Heading level={1}>Wishlist</Heading>
+      <Grid columns={["fill", "auto"]}>
+        <Heading level={1}>{i18n.translate("heading")}</Heading>
+        {showFullPageButton && (
+          <Button kind="secondary" to="extension:full-page/">
+            {i18n.translate("goToWishlist")}
+          </Button>
+        )}
+      </Grid>
       <BlockSpacer spacing="loose" />
       {wishlist.length === 0 && (
         <Card padding>
