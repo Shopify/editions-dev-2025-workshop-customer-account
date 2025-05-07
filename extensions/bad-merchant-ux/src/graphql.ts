@@ -2,6 +2,7 @@ export const productFragment = `
   fragment ProductFields on Product {
     id
     title
+    handle
     priceRange {
       minVariantPrice {
         amount
@@ -19,6 +20,16 @@ export const productFragment = `
     }
   }
 `;
+
+export function getShopDataQuery() {
+  return {
+    query: `query shopData {
+      shop {
+        url
+      }
+    }`,
+  };
+}
 
 export function getWishlistQuery(namespace: string, key: string) {
   return {
@@ -89,8 +100,8 @@ export function removeItemFromWishlistMutation(
         {
           namespace,
           key,
-          ownerId: customerId,
-          value: newValue,
+          ownerId: `gid://shopify/Customer/${customerId}`,
+          value: JSON.stringify(newValue),
         },
       ],
     },

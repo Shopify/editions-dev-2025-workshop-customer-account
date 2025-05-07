@@ -13,22 +13,118 @@ import {
   useSettings,
   useAuthenticatedAccountCustomer,
 } from "@shopify/ui-extensions-react/customer-account";
-import { useEffect, useState } from "react";
-import { Product } from "./types";
+import { useState } from "react";
+import type { Product, Shop } from "./types";
 import WishlistItem from "./WishlistItem";
 import {
   getWishlistQuery,
   getProductsQuery,
   removeItemFromWishlistMutation,
   getFirst3ProductsQuery,
+  getShopDataQuery,
 } from "./graphql";
 
 export default reactExtension(
   "customer-account.order-index.block.render",
-  () => <WishlistedItems />,
+  async (api) => {
+    const isInEditor = api.extension.editor?.type === "checkout";
+    const {
+      metafield_namespace: metaFieldNamespace = "custom",
+      metafield_key: metaFieldKey = "wishlist",
+    } = api.settings.current;
+
+    const shopDataPromise = fetchShopData();
+
+    const products = isInEditor
+      ? await fetchPreviewProducts()
+      : await fetchProducts(
+          await fetchWishlistedProductIds(
+            metaFieldNamespace as string,
+            metaFieldKey as string,
+          ),
+        );
+    const shopData = await shopDataPromise;
+
+    return <WishlistedItems initialWishlist={products} shopData={shopData} />;
+  },
 );
 
-function WishlistedItems() {
+async function fetchShopData() {
+  const response = await fetch(
+    "shopify://customer-account/api/unstable/graphql.json",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(getShopDataQuery()),
+    },
+  );
+
+  const data = await response.json();
+  return data?.data?.shop;
+}
+
+async function fetchWishlistedProductIds(
+  metaFieldNamespace: string,
+  metaFieldKey: string,
+) {
+  const response = await fetch(
+    "shopify://customer-account/api/unstable/graphql.json",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(getWishlistQuery(metaFieldNamespace, metaFieldKey)),
+    },
+  );
+
+  const data = await response.json();
+  const value = data?.data?.customer?.metafield?.value;
+  return value ? JSON.parse(value) : [];
+}
+
+async function fetchPreviewProducts() {
+  const response = await fetch(
+    "shopify://storefront/api/unstable/graphql.json",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(getFirst3ProductsQuery()),
+    },
+  );
+
+  const data = await response.json();
+  return data?.data?.products?.nodes;
+}
+
+async function fetchProducts(productIds?: string[]) {
+  const response = await fetch(
+    "shopify://storefront/api/unstable/graphql.json",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(getProductsQuery(productIds)),
+    },
+  );
+
+  const data = await response.json();
+
+  return data?.data?.nodes;
+}
+
+function WishlistedItems({
+  initialWishlist,
+  shopData,
+}: {
+  initialWishlist: Product[];
+  shopData: Shop;
+}) {
   const {
     metafield_namespace: metaFieldNamespace = "custom",
     metafield_key: metaFieldKey = "wishlist",
@@ -37,101 +133,10 @@ function WishlistedItems() {
   const { editor } = useExtension();
   const { id: customerId } = useAuthenticatedAccountCustomer();
 
-  const [wishlist, setWishlist] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
+  const [wishlist, setWishlist] = useState<Product[]>(initialWishlist);
   const wishlistedProductIds = wishlist.map((product) => product.id);
 
   const isInEditor = editor?.type === "checkout";
-
-  useEffect(() => {
-    if (isInEditor) {
-      // Better UX - shows a preview in the editor, but hardcodes content that can still be queried in the context of the editor
-      // setWishlist([
-      //   {
-      //     id: "123",
-      //     title: "Product 1",
-      //     priceRange: {
-      //       minVariantPrice: {
-      //         amount: 100,
-      //         currencyCode: "USD",
-      //       },
-      //       maxVariantPrice: {
-      //         amount: 100,
-      //         currencyCode: "USD",
-      //       },
-      //     },
-      //     images: {
-      //       nodes: [
-      //         {
-      //           url: "https://placehold.co/400",
-      //         },
-      //       ],
-      //     },
-      //   },
-      // ]);
-      // setIsLoading(false);
-
-      // Best UX - shows relevant preview using data from the merchant's store
-      fetchProducts();
-      return;
-    }
-
-    if (!metaFieldNamespace || !metaFieldKey) {
-      setIsLoading(false);
-      return;
-    }
-
-    fetch("shopify://customer-account/api/unstable/graphql.json", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(
-        getWishlistQuery(metaFieldNamespace as string, metaFieldKey as string),
-      ),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data?.data?.customer?.metafield?.value == null) {
-          setIsLoading(false);
-          return;
-        }
-        fetchProducts(JSON.parse(data.data.customer.metafield.value));
-      })
-      .catch(console.error);
-  }, []);
-
-  function fetchProducts(productIds?: string[]) {
-    fetch("shopify://storefront/api/unstable/graphql.json", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: productIds
-        ? JSON.stringify(getProductsQuery(productIds))
-        : JSON.stringify(getFirst3ProductsQuery()),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (!productIds) {
-          if (!data?.data?.products?.nodes) {
-            setIsLoading(false);
-            return;
-          }
-          setWishlist(data.data.products.nodes);
-          setIsLoading(false);
-          return;
-        }
-        if (!data?.data?.nodes) {
-          setIsLoading(false);
-          return;
-        }
-        setWishlist(data.data.nodes);
-        setIsLoading(false);
-      })
-      .catch(console.error);
-  }
 
   async function removeItemFromWishlist(
     wishlistItems: string[],
@@ -147,8 +152,8 @@ function WishlistedItems() {
         productIdToRemove,
         newWishlistItems,
       );
-      await fetchProducts(newWishlistItems);
-      return Promise.resolve();
+      const newWishlist = await fetchProducts(newWishlistItems);
+      setWishlist(newWishlist);
     }
 
     try {
@@ -167,7 +172,8 @@ function WishlistedItems() {
         ),
       });
 
-      await fetchProducts(newWishlistItems);
+      const newWishlist = await fetchProducts(newWishlistItems);
+      setWishlist(newWishlist);
     } catch (error) {
       console.error(error);
     }
@@ -184,7 +190,7 @@ function WishlistedItems() {
     <View>
       <Heading level={1}>Wishlist</Heading>
       <BlockSpacer spacing="loose" />
-      {!isLoading && wishlist.length === 0 && (
+      {wishlist.length === 0 && (
         <Card padding>
           <BlockStack inlineAlignment="center">
             <Heading level={2}>Your wishlist is empty</Heading>
@@ -228,26 +234,17 @@ function WishlistedItems() {
           overflow="visible"
           rows="auto"
         >
-          {isLoading && (
+          {wishlist.map((product) => (
             <WishlistItem
-              product={null}
-              isLoading={isLoading}
+              key={product.id}
+              product={product}
+              shopUrl={shopData.url}
               showRemoveButton={showRemoveButton as boolean}
-              onRemoveClick={() => {}}
+              onRemoveClick={() => {
+                removeItemFromWishlist(wishlistedProductIds, product.id);
+              }}
             />
-          )}
-          {!isLoading &&
-            wishlist.map((product) => (
-              <WishlistItem
-                key={product.id}
-                product={product}
-                isLoading={false}
-                showRemoveButton={showRemoveButton as boolean}
-                onRemoveClick={() => {
-                  removeItemFromWishlist(wishlistedProductIds, product.id);
-                }}
-              />
-            ))}
+          ))}
         </Grid>
       </Card>
     </View>

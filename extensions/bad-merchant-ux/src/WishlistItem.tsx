@@ -2,47 +2,27 @@ import {
   Button,
   Icon,
   Grid,
-  View,
-  BlockStack,
   InlineStack,
   Image,
   useApi,
-  Card,
-  SkeletonImage,
-  SkeletonTextBlock,
   Text,
 } from "@shopify/ui-extensions-react/customer-account";
 import type { Product } from "./types";
 
 type Props = {
-  isLoading: boolean;
-  product?: Product;
+  product: Product;
   showRemoveButton: boolean;
   onRemoveClick: () => void;
+  shopUrl: string;
 };
 
 export default function WishlistItem({
   product,
-  isLoading,
   showRemoveButton,
   onRemoveClick,
+  shopUrl,
 }: Props) {
   const { i18n } = useApi();
-
-  if (isLoading || !product) {
-    return (
-      <View data-testid="loading-state">
-        <Card padding>
-          <BlockStack>
-            <SkeletonTextBlock lines={2} size="extraLarge" />
-            <SkeletonImage inlineSize="fill" blockSize={250} />
-            <SkeletonTextBlock lines={3} />
-            <SkeletonTextBlock lines={1} emphasis="bold" size="extraLarge" />
-          </BlockStack>
-        </Card>
-      </View>
-    );
-  }
 
   return (
     <Grid
@@ -75,7 +55,7 @@ export default function WishlistItem({
           : null}
       </Text>
       <Grid columns={["fill", "auto"]} spacing={"tight"}>
-        <Button kind="secondary">
+        <Button kind="secondary" to={`${shopUrl}/products/${product.handle}`}>
           <InlineStack spacing="extraTight" blockAlignment="center">
             <Icon source="cart"></Icon>
             <Text>Buy now</Text>
