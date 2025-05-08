@@ -111,6 +111,9 @@ function OrderListPageExtension({
               <Button
                 kind="secondary"
                 onPress={() => {
+                  if (isInEditor) {
+                    return;
+                  }
                   addToWishlist(product.id);
                 }}
               >

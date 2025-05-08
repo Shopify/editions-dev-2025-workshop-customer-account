@@ -3,8 +3,6 @@ import {
   Icon,
   Grid,
   InlineStack,
-  Card,
-  useApi,
   Text,
 } from "@shopify/ui-extensions-react/customer-account";
 import type { Product } from "../../_shared/types";

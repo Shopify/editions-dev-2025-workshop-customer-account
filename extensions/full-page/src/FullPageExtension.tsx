@@ -111,6 +111,9 @@ function WishlistedItems() {
                   shopUrl={shopData.url}
                   showRemoveButton={showRemoveButton as boolean}
                   onRemoveClick={() => {
+                    if (isInEditor) {
+                      return;
+                    }
                     removeItemFromWishlist(wishlistedProductIds, product.id);
                   }}
                 />
