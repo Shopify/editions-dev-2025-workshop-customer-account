@@ -33,34 +33,7 @@ api_access = true
 network_access = true
 
 [[extensions.settings.fields]]
-key = "metafield_namespace"
+key = "product_tag"
 type = "single_line_text_field"
-name = "Metafield namespace (required)"
-description = "Enter the namespace for the metafield that contains the wishlist items."
-
-[[extensions.settings.fields.validations]]
-name = "min"
-value = "3"
-
-[[extensions.settings.fields]]
-key = "metafield_key"
-type = "single_line_text_field"
-name = "Metafield key (required)"
-description = "Enter the key for the metafield that contains the wishlist items."
-
-[[extensions.settings.fields.validations]]
-name = "min"
-value = "2"
-
-[[extensions.settings.fields]]
-key = "show_remove_button"
-type = "boolean"
-name = "Show remove button?"
-description = "If disabled, the add to remove button will not be shown for each wishlist item."
-
-[[extensions.settings.fields]]
-key = "show_full_page_button"
-type = "boolean"
-name = "Show full page button?"
-description = "If enabled, a button that leads to the full page will be shown."
-
+name = "Product tag (required)"
+description = "Enter the product tag used to suggest products."

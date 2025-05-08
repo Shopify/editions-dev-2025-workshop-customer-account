@@ -1,266 +1,142 @@
 import {
-  BlockStack,
   reactExtension,
-  View,
-  Heading,
-  Grid,
-  Style,
-  Card,
-  Text,
   Button,
-  BlockSpacer,
-  Banner,
-  useExtension,
+  Card,
+  Heading,
+  BlockStack,
   useSettings,
+  useExtension,
+  Banner,
   useAuthenticatedAccountCustomer,
   useApi,
 } from "@shopify/ui-extensions-react/customer-account";
-import { useState } from "react";
-import type { Product, Shop } from "./types";
-import WishlistItem from "./WishlistItem";
+import { ProductsGrid } from "../../_shared/components/ProductsGrid";
+import { ProductItem } from "../../_shared/components/ProductItem";
+import { useEffect, useState, useRef } from "react";
 import {
-  getWishlistQuery,
-  getProductsQuery,
-  removeItemFromWishlistMutation,
-  getFirst3ProductsQuery,
-  getShopDataQuery,
-} from "./graphql";
+  fetchWishlistedProductIds,
+  getProductsByTagQuery,
+  updateWishlistItems,
+} from "../../_shared/graphql";
+import type { Product } from "../../_shared/types";
 
 export default reactExtension(
   "customer-account.order-index.block.render",
   async (api) => {
-    const isInEditor = api.extension.editor?.type === "checkout";
-    const {
-      metafield_namespace: metaFieldNamespace = "custom",
-      metafield_key: metaFieldKey = "wishlist",
-    } = api.settings.current;
+    const { product_tag: productTag } = api.settings.current;
 
-    const shopDataPromise = fetchShopData();
+    const products = productTag
+      ? await fetchProductsByTag(productTag as string)
+      : [];
 
-    const products = isInEditor
-      ? await fetchPreviewProducts()
-      : await fetchProducts(
-          await fetchWishlistedProductIds(
-            metaFieldNamespace as string,
-            metaFieldKey as string,
-          ),
-        );
-    const shopData = await shopDataPromise;
-
-    return <WishlistedItems initialWishlist={products} shopData={shopData} />;
+    return <OrderListPageExtension initialProducts={products} />;
   },
 );
 
-async function fetchShopData() {
-  const response = await fetch(
-    "shopify://customer-account/api/unstable/graphql.json",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(getShopDataQuery()),
-    },
-  );
-
-  const data = await response.json();
-  return data?.data?.shop;
-}
-
-async function fetchWishlistedProductIds(
-  metaFieldNamespace: string,
-  metaFieldKey: string,
-) {
-  const response = await fetch(
-    "shopify://customer-account/api/unstable/graphql.json",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(getWishlistQuery(metaFieldNamespace, metaFieldKey)),
-    },
-  );
-
-  const data = await response.json();
-  const value = data?.data?.customer?.metafield?.value;
-  return value ? JSON.parse(value) : [];
-}
-
-async function fetchPreviewProducts() {
-  const response = await fetch(
-    "shopify://storefront/api/unstable/graphql.json",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(getFirst3ProductsQuery()),
-    },
-  );
-
-  const data = await response.json();
-  return data?.data?.products?.nodes.filter((node) => node !== null);
-}
-
-async function fetchProducts(productIds?: string[]) {
-  const response = await fetch(
-    "shopify://storefront/api/unstable/graphql.json",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(getProductsQuery(productIds)),
-    },
-  );
-
-  const data = await response.json();
-
-  return data?.data?.nodes.filter((node) => node !== null);
-}
-
-function WishlistedItems({
-  initialWishlist,
-  shopData,
+function OrderListPageExtension({
+  initialProducts,
 }: {
-  initialWishlist: Product[];
-  shopData: Shop;
+  initialProducts: Product[];
 }) {
-  let {
-    metafield_namespace: metaFieldNamespace,
-    metafield_key: metaFieldKey,
-    show_remove_button: showRemoveButton,
-    show_full_page_button: showFullPageButton,
-  } = useSettings();
-
-  showRemoveButton = showRemoveButton ?? true;
-  showFullPageButton = showFullPageButton ?? true;
-
-  const { editor } = useExtension();
   const { id: customerId } = useAuthenticatedAccountCustomer();
-  const { i18n } = useApi();
-  const [wishlist, setWishlist] = useState<Product[]>(initialWishlist);
-  const wishlistedProductIds = wishlist.map((product) => product.id);
+  const [suggestedProducts, setSuggestedProducts] =
+    useState<Product[]>(initialProducts);
+  const isInEditor = useExtension().editor?.type === "checkout";
+  const isFirstRender = useRef(true);
 
-  const isInEditor = editor?.type === "checkout";
+  const api = useApi();
 
-  async function removeItemFromWishlist(
-    wishlistItems: string[],
-    productIdToRemove: string,
-  ) {
-    const newWishlistItems = wishlistItems.filter(
-      (item) => item !== productIdToRemove,
+  const { product_tag: productTag } = useSettings();
+
+  useEffect(() => {
+    // since we have initial products, we don't need to fetch them the first time
+    // only if the product tag changes
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    // this could be debounced in the editor because it is being called on every keystroke
+    async function run() {
+      if (!productTag) {
+        setSuggestedProducts([]);
+        return;
+      }
+      const products = await fetchProductsByTag(productTag as string);
+      setSuggestedProducts(products);
+    }
+    run();
+  }, [productTag]);
+
+  async function addToWishlist(productId: string) {
+    const wishlist = await fetchWishlistedProductIds();
+    const newWishlist = Array.from(new Set([productId, ...wishlist]));
+
+    await updateWishlistItems(customerId, newWishlist);
+
+    api.ui.toast.show("Product added to wishlist");
+  }
+
+  if (isInEditor && !productTag) {
+    return (
+      <Banner status="critical">
+        Please set a product tag in the extension settings to display products.
+        This message will only be shown in the editor.
+      </Banner>
     );
-
-    if (isInEditor) {
-      console.log(
-        "CLICKED REMOVE ITEM FROM WISHLIST",
-        productIdToRemove,
-        newWishlistItems,
-      );
-      const newWishlist = await fetchProducts(newWishlistItems);
-      setWishlist(newWishlist);
-    }
-
-    try {
-      await fetch("shopify://customer-account/api/unstable/graphql.json", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(
-          removeItemFromWishlistMutation(
-            metaFieldNamespace as string,
-            metaFieldKey as string,
-            customerId,
-            newWishlistItems,
-          ),
-        ),
-      });
-
-      const newWishlist = await fetchProducts(newWishlistItems);
-      setWishlist(newWishlist);
-    } catch (error) {
-      console.error(error);
-    }
   }
 
-  // Bad UX - doesn't show any preview at all in the editor
-  // if (!isLoading && wishlist.length === 0) return null;
-
-  if (!metaFieldNamespace || !metaFieldKey) {
-    if (!isInEditor) return null;
+  if (suggestedProducts.length === 0 && isInEditor && productTag) {
+    return (
+      <Banner status="warning">
+        No products found for the selected tag. This message will only be shown
+        in the editor.
+      </Banner>
+    );
   }
 
+  if (suggestedProducts.length === 0) {
+    return null;
+  }
   return (
-    <View>
-      <Grid columns={["fill", "auto"]}>
-        <Heading level={1}>{i18n.translate("heading")}</Heading>
-        {showFullPageButton && (
-          <Button kind="secondary" to="extension:full-page/">
-            {i18n.translate("goToWishlist")}
-          </Button>
-        )}
-      </Grid>
-      <BlockSpacer spacing="loose" />
-      {wishlist.length === 0 && (
-        <Card padding>
-          <BlockStack inlineAlignment="center">
-            <Heading level={2}>{i18n.translate("wishlistEmpty.title")}</Heading>
-            <Text>{i18n.translate("wishlistEmpty.description")}</Text>
-          </BlockStack>
-        </Card>
-      )}
-      <Card padding>
-        {/* Good UX - tells merchants in the editor when there is a missing required setting */}
-        {isInEditor && (!metaFieldNamespace || !metaFieldKey) && (
-          <>
-            <Banner status="warning">
-              <Text>
-                Missing required settings. Please provide a metafield namespace
-                and key in the app block settings. The following is a preview -
-                this app block will not be visible to customers until you
-                provide the required settings.
-              </Text>
-            </Banner>
-            <BlockSpacer spacing="loose" />
-          </>
-        )}
-        <Grid
-          columns={Style.default(["fill"])
-            .when({ viewportInlineSize: { min: "extraSmall" } }, [
-              "fill",
-              "fill",
-            ])
-            .when({ viewportInlineSize: { min: "small" } }, [
-              "fill",
-              "fill",
-              "fill",
-            ])
-            .when({ viewportInlineSize: { min: "medium" } }, [
-              "fill",
-              "fill",
-              "fill",
-              "fill",
-            ])}
-          spacing="loose"
-          overflow="visible"
-          rows="auto"
-        >
-          {wishlist.map((product) => (
-            <WishlistItem
-              key={product.id}
-              product={product}
-              shopUrl={shopData.url}
-              showRemoveButton={showRemoveButton as boolean}
-              onRemoveClick={() => {
-                removeItemFromWishlist(wishlistedProductIds, product.id);
-              }}
-            />
-          ))}
-        </Grid>
-      </Card>
-    </View>
+    <BlockStack>
+      <Heading>Products we think you'll love</Heading>
+      <ProductsGrid>
+        {suggestedProducts.map((product) => (
+          <ProductItem
+            key={product.id}
+            image={product.images.nodes[0].url}
+            title={product.title}
+            price={product.priceRange.minVariantPrice}
+            actions={
+              <Button
+                kind="secondary"
+                onPress={() => {
+                  addToWishlist(product.id);
+                }}
+              >
+                Add to Wishlist
+              </Button>
+            }
+          />
+        ))}
+      </ProductsGrid>
+    </BlockStack>
   );
+}
+
+async function fetchProductsByTag(tag: string) {
+  const response = await fetch(
+    "shopify://storefront/api/unstable/graphql.json",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(getProductsByTagQuery(tag)),
+    },
+  );
+
+  const data = await response.json();
+  return data.data.products.nodes;
 }

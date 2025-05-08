@@ -1,3 +1,7 @@
+import { METAFIELD_NAMESPACE } from "./constants";
+
+import { METAFIELD_KEY } from "./constants";
+
 export const productFragment = `
   fragment ProductFields on Product {
     id
@@ -31,7 +35,7 @@ export function getShopDataQuery() {
   };
 }
 
-export function getWishlistQuery(namespace: string, key: string) {
+export function getWishlistQuery() {
   return {
     query: `query wishlistedItems($key: String!, $namespace: String!) {
       customer {
@@ -41,8 +45,8 @@ export function getWishlistQuery(namespace: string, key: string) {
       }
     }`,
     variables: {
-      namespace,
-      key,
+      key: METAFIELD_KEY,
+      namespace: METAFIELD_NAMESPACE,
     },
   };
 }
@@ -80,9 +84,7 @@ export const getProductsQuery = (productIds: string[]) => {
   };
 };
 
-export function removeItemFromWishlistMutation(
-  namespace: string,
-  key: string,
+export function setWishlistItemsMutation(
   customerId: string,
   newValue: string[],
 ) {
@@ -98,12 +100,66 @@ export function removeItemFromWishlistMutation(
     variables: {
       metafields: [
         {
-          namespace,
-          key,
+          namespace: METAFIELD_NAMESPACE,
+          key: METAFIELD_KEY,
           ownerId: `gid://shopify/Customer/${customerId}`,
           value: JSON.stringify(newValue),
         },
       ],
     },
   };
+}
+
+export const getProductsByTagQuery = (tag: string) => {
+  return {
+    query: `
+      ${productFragment}
+      query Products($query: String!) {
+        products(first: 5, query: $query) {
+          nodes {
+            ... on Product {
+              ...ProductFields
+            }
+          }
+        }
+      }`,
+    variables: {
+      query: `tag:${tag}`,
+    },
+  };
+};
+
+export async function fetchWishlistedProductIds() {
+  const response = await fetch(
+    "shopify://customer-account/api/unstable/graphql.json",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(getWishlistQuery()),
+    },
+  );
+
+  const data = await response.json();
+  const value = data?.data?.customer?.metafield?.value;
+  return value ? JSON.parse(value) : [];
+}
+
+export async function updateWishlistItems(
+  customerId: string,
+  wishlist: string[],
+) {
+  const result = await fetch(
+    "shopify://customer-account/api/unstable/graphql.json",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(setWishlistItemsMutation(customerId, wishlist)),
+    },
+  );
+
+  return result.json();
 }

@@ -1,10 +1,4 @@
 {
-  "buyNow": "Buy now",
-  "remove": "Remove",
-  "wishlistEmpty": {
-    "title": "Your wishlist is empty",
-    "description": "No items in your wishlist"
-  },
-  "goToWishlist": "Go to wishlist",
-  "heading": "Wishlist"
+  "name": "fullpage",
+  "welcome": "Welcome to the {{target}} extension!"
 }

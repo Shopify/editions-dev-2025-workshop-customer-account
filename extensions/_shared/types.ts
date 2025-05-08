@@ -29,4 +29,4 @@ type Shop = {
   url: string;
 };
 
-export { WishlistItem, Product, Shop };
+export type { WishlistItem, Product, Shop };
