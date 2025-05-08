@@ -23,8 +23,6 @@ export default function WishlistItem({
   onRemoveClick,
   shopUrl,
 }: Props) {
-  const { i18n } = useApi();
-
   return (
     <ProductItem
       image={product.images.nodes[0]?.url}
@@ -35,7 +33,7 @@ export default function WishlistItem({
           <Button kind="secondary" to={`${shopUrl}/products/${product.handle}`}>
             <InlineStack spacing="extraTight" blockAlignment="center">
               <Icon source="cart"></Icon>
-              <Text>{i18n.translate("buyNow")}</Text>
+              <Text>Buy now</Text>
             </InlineStack>
           </Button>
 
@@ -43,7 +41,7 @@ export default function WishlistItem({
             <Button
               kind="secondary"
               onPress={onRemoveClick}
-              accessibilityLabel={i18n.translate("remove")}
+              accessibilityLabel={"Remove"}
             >
               <Icon source="delete"></Icon>
             </Button>

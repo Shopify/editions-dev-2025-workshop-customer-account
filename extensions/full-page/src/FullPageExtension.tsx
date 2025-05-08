@@ -34,7 +34,6 @@ function WishlistedItems() {
 
   const { editor } = useExtension();
   const { id: customerId } = useAuthenticatedAccountCustomer();
-  const { i18n } = useApi();
   const [wishlist, setWishlist] = useState<Product[]>([]);
   const [shopData, setShopData] = useState<Shop | null>(null);
   const [loading, setLoading] = useState(true);
@@ -87,20 +86,22 @@ function WishlistedItems() {
   }
 
   return (
-    <Page title={i18n.translate("heading")}>
+    <Page title="Wishlist">
       {!loading && wishlist.length === 0 ? (
         <Card padding>
           <BlockStack inlineAlignment="center">
-            <Heading level={2}>{i18n.translate("wishlistEmpty.title")}</Heading>
-            <Text>{i18n.translate("wishlistEmpty.description")}</Text>
+            <Heading level={2}>Your wishlist is empty</Heading>
+            <Text>No items in your wishlist</Text>
           </BlockStack>
         </Card>
       ) : (
         <>
           {loading ? (
-            <View inlineAlignment="center">
-              <Spinner size="large" />
-            </View>
+            <Card padding>
+              <View inlineAlignment="center">
+                <Spinner size="large" />
+              </View>
+            </Card>
           ) : (
             <ProductsGrid>
               {wishlist.map((product) => (

@@ -1,7 +1,6 @@
 import {
   reactExtension,
   Button,
-  Card,
   Heading,
   BlockStack,
   useSettings,
