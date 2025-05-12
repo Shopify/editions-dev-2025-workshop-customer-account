@@ -1,9 +1,13 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useRevalidator } from "@remix-run/react";
-import { Page, Text, Banner, Link } from "@shopify/polaris";
-import { TitleBar } from "@shopify/app-bridge-react";
+import { Page, Card, Text, Layout } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Step } from "app/components/Step";
+import { TitleBar } from "@shopify/app-bridge-react";
+
+const APP_ID = "242741477377";
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin } = await authenticate.admin(request);
 
@@ -15,12 +19,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
           customerAccountsVersion
         }
       }
-      checkoutProfiles(first: 1, query: "(is_published:true)") {
-        nodes {
-          id
-          typOspPagesActive
-        }
-      }
+     
     }`,
   );
   const responseJson = await response.json();
@@ -29,19 +28,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     responseJson.data?.shop?.customerAccountsV2?.customerAccountsVersion ===
     "NEW_CUSTOMER_ACCOUNTS";
 
-  const isUsingNewTypOsp =
-    responseJson.data?.checkoutProfiles?.nodes?.[0].typOspPagesActive;
-
   return {
     isUsingCustomerAccounts,
-    isUsingNewTypOsp,
   };
 };
 
 export default function Index() {
-  const { isUsingCustomerAccounts, isUsingNewTypOsp } =
-    useLoaderData<typeof loader>();
+  const { isUsingCustomerAccounts } = useLoaderData<typeof loader>();
   const revalidator = useRevalidator();
+  const [completeOverrides, setCompleteOverrides] = useState<{
+    [key: string]: boolean;
+  }>({});
 
   useEffect(() => {
     const handleFocus = () => {
@@ -55,33 +52,55 @@ export default function Index() {
     };
   }, [revalidator]);
 
-  return (
-    <Page>
-      <TitleBar title="Customer Account Wishlist" />
-      {!isUsingCustomerAccounts && (
-        <Banner
-          tone="warning"
-          title={`Upgrade to the new version of customer accounts`}
-        >
-          <Text as="p">
-            You are still using legacy customer account. Please update to the{" "}
-            <Link
-              target="_blank"
-              url="https://admin.shopify.com/settings/customer_accounts"
-            >
-              new version of customer accounts
-            </Link>{" "}
-            to use this app.
-          </Text>
-        </Banner>
-      )}
+  const steps = [
+    {
+      handle: "new-customer-accounts",
+      title: "Upgrade to new customer accounts",
+      description:
+        "You are still using legacy customer accounts. Please upgrade to the new version to use this app.",
+      actionTitle: "Upgrade",
+      actionLink: "shopify://admin/settings/customer_accounts",
+      isComplete: isUsingCustomerAccounts,
+      expandableWhenComplete: false,
+    },
+    {
+      handle: "activated-extension",
+      title: "Add to customer accounts",
+      description:
+        "Allow buyers to manage their whishlist. Add it now to customer accounts.",
+      actionTitle: "Add in the editor",
+      actionLink: `shopify://admin/settings/checkout/editor?page=order-list&context=apps&app=${APP_ID}&collection=wishlist-collection`,
+      isComplete: completeOverrides["activated-extension"],
+      onNavigate: () => {
+        setCompleteOverrides((prev) => ({
+          ...prev,
+          "activated-extension": true,
+        }));
+      },
+    },
+  ];
 
-      {!isUsingNewTypOsp && (
-        <Banner
-          tone="warning"
-          title="You are still using the legacy Thank you and order status pages. Please update to the new version of these pages to use this app."
-        />
-      )}
+  const [activeStep, setActiveStep] = useState(
+    steps.find((step) => !step.isComplete)?.handle,
+  );
+
+  return (
+    <Page title="Wishlist Onboarding">
+      <TitleBar title="Customer Account Wishlist" />
+      <Layout>
+        <Layout.Section>
+          <Card padding="500">
+            {steps.map((step) => (
+              <Step
+                key={step.handle}
+                {...step}
+                onSetActive={() => setActiveStep(step.handle)}
+                isActive={activeStep === step.handle}
+              ></Step>
+            ))}
+          </Card>
+        </Layout.Section>
+      </Layout>
     </Page>
   );
 }
