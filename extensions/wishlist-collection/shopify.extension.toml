@@ -1,0 +1,18 @@
+[[extensions]]
+name = "t:collection_name"
+handle = "wishlist-collection"
+type = "editor_extension_collection"
+uid = "57f06b86-c07d-4fdc-9fae-7fdc7ae7d96d"
+# Add the handles of the extensions you want in this collection here
+includes=["bad-merchant-ux", "full-page"]
+
+# You can also add extensions to the collection this way
+#[[extensions.include]]
+#handle=""
+
+# A second editor extension collection added in the same extension toml config
+# [[extensions]]
+# name = "t:collection_two_name"
+# type = "editor_extension_collection"
+# handle = "collection"
+# includes=[]
