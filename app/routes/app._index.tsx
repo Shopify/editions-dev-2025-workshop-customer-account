@@ -1,47 +1,101 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useRevalidator } from "@remix-run/react";
-import {
-  Page,
-  Text,
-  Link,
-  Button,
-  UnstyledButton,
-  Card,
-} from "@shopify/polaris";
-import { TitleBar } from "@shopify/app-bridge-react";
+import { Page, Card } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { Step } from "app/components/Step";
+import { TitleBar } from "@shopify/app-bridge-react";
+
+const APP_ID = "242741477377";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  return {};
+  const { admin } = await authenticate.admin(request);
+
+  const response = await admin.graphql(
+    `#graphql
+    query customerAccountSettings {
+      shop {
+        customerAccountsV2 {
+          customerAccountsVersion
+        }
+      }
+     
+    }`,
+  );
+  const responseJson = await response.json();
+
+  const isUsingCustomerAccounts =
+    responseJson.data?.shop?.customerAccountsV2?.customerAccountsVersion ===
+    "NEW_CUSTOMER_ACCOUNTS";
+
+  return {
+    isUsingCustomerAccounts,
+  };
 };
 
 export default function Index() {
-  const [activeStep, setActiveStep] = useState(0);
+  const { isUsingCustomerAccounts } = useLoaderData<typeof loader>();
+  const revalidator = useRevalidator();
+  const [completeOverrides, setCompleteOverrides] = useState<{
+    [key: string]: boolean;
+  }>({});
+
+  useEffect(() => {
+    const handleFocus = () => {
+      revalidator.revalidate();
+    };
+
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [revalidator]);
+
+  const steps = [
+    {
+      handle: "new-customer-accounts",
+      title: "Upgrade to new customer accounts",
+      description:
+        "You are still using legacy customer accounts. Please upgrade to the new version to use this app.",
+      actionTitle: "Upgrade",
+      actionLink: "shopify://admin/settings/customer_accounts",
+      isComplete: isUsingCustomerAccounts,
+      expandableWhenComplete: false,
+    },
+    {
+      handle: "activated-extension",
+      title: "Add to customer accounts",
+      description: "Add the app to your customer accounts",
+      actionTitle: "Add",
+      actionLink: `shopify://admin/settings/checkout/editor?page=checkout&context=apps&app=${APP_ID}&collection=wishlist-collection`,
+      isComplete: completeOverrides["activated-extension"],
+      onNavigate: () => {
+        setCompleteOverrides((prev) => ({
+          ...prev,
+          "activated-extension": true,
+        }));
+      },
+    },
+  ];
+
+  const [activeStep, setActiveStep] = useState(
+    steps.find((step) => !step.isComplete)?.handle,
+  );
 
   return (
-    <Page title="Welcome!">
+    <Page>
+      <TitleBar title="Customer Account Wishlist" />
       <Card>
-        <Step
-          handle="step-1"
-          title="Upgrade to new customer accounts"
-          description="You are still using legacy customer accounts. Please upgrade to the new version to use this app."
-          actionTitle="Upgrade"
-          actionLink="/step-2"
-          isActive={activeStep === 0}
-          onSetActive={() => setActiveStep(0)}
-        ></Step>
-        <Step
-          handle="step-2"
-          title="Add to customer accounts"
-          description="Add the app to your customer accounts"
-          actionTitle="Add"
-          actionLink="/step-3"
-          isActive={activeStep === 1}
-          isComplete={true}
-          onSetActive={() => setActiveStep(1)}
-        ></Step>
+        {steps.map((step) => (
+          <Step
+            key={step.handle}
+            {...step}
+            onSetActive={() => setActiveStep(step.handle)}
+            isActive={activeStep === step.handle}
+            isComplete={step.isComplete}
+          ></Step>
+        ))}
       </Card>
     </Page>
   );

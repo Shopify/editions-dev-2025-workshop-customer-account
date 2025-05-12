@@ -8,14 +8,26 @@ import {
   Tooltip,
   UnstyledButton,
   BlockStack,
-  Spinner,
-  Icon,
 } from "@shopify/polaris";
 
-import { CheckCircleIcon, AlertCircleIcon } from "@shopify/polaris-icons";
 import { useState } from "react";
 
 import styles from "./Step.module.css";
+import { Unchecked } from "../Unchecked";
+import { Checked } from "../Checked";
+
+export type StepProps = {
+  handle: string;
+  title: string;
+  description: string;
+  actionTitle: string;
+  actionLink: string;
+  isComplete: boolean;
+  isActive: boolean;
+  onSetActive: (handle: string) => void;
+  onNavigate?: () => void;
+  expandableWhenComplete?: boolean;
+};
 
 export function Step({
   handle,
@@ -23,24 +35,13 @@ export function Step({
   description,
   actionTitle,
   actionLink,
-  codeBlock,
   isComplete,
-  onSetComplete,
   isActive,
-  isLoading,
-  isDisabled,
   onSetActive,
   onNavigate,
-}: any) {
-  const [isCompleted, setIsCompleted] = useState(isComplete);
-
-  const handleClick = () => {
-    setIsCompleted(!isCompleted);
-  };
-
-  const tooltipContent = isCompleted ? "Completed" : "Not Completed";
-
-  console.log({ isCompleted, isLoading });
+  expandableWhenComplete = true,
+}: StepProps) {
+  const tooltipContent = isComplete ? "Completed" : "Not Completed";
 
   return (
     <Bleed marginInline="200">
@@ -60,21 +61,7 @@ export function Step({
               preferredPosition="above"
               content={tooltipContent}
             >
-              <UnstyledButton
-                onClick={() => handleClick()}
-                className={styles.UnstyledButton}
-                disabled={isDisabled}
-              >
-                {isLoading ? (
-                  <div className={styles.SpinnerContainer}>
-                    <Spinner size="small" />
-                  </div>
-                ) : isCompleted ? (
-                  <Icon source={CheckCircleIcon} tone="base" />
-                ) : (
-                  <Icon source={AlertCircleIcon} tone="base" />
-                )}
-              </UnstyledButton>
+              {isComplete ? <Checked /> : <Unchecked />}
             </Tooltip>
             <Box width="100%">
               <BlockStack gap="200">
@@ -90,31 +77,21 @@ export function Step({
                     {title}
                   </Text>
                 </UnstyledButton>
-                <Collapsible id="create" open={isActive}>
+                <Collapsible
+                  id="create"
+                  open={isActive && (expandableWhenComplete || !isComplete)}
+                >
                   <BlockStack gap="400">
                     <Text as="p" variant="bodyMd">
                       {description}
                     </Text>
-                    {codeBlock && (
-                      <Box
-                        background="bg-fill-active"
-                        padding="400"
-                        borderRadius="400"
-                        borderWidth="0165"
-                        borderColor="border"
-                      >
-                        <Text as="span" variant="bodyMd">
-                          {codeBlock}
-                        </Text>
-                      </Box>
-                    )}
                     <InlineStack>
                       {handle && (
                         <Button
                           submit
                           variant="primary"
                           url={actionLink}
-                          onClick={actionLink ? undefined : () => onNavigate()}
+                          onClick={() => onNavigate?.()}
                         >
                           {actionTitle}
                         </Button>
