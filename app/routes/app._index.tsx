@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useRevalidator } from "@remix-run/react";
-import { Page, Card } from "@shopify/polaris";
+import { Page, Card, Text, Layout } from "@shopify/polaris";
 import { authenticate } from "../shopify.server";
 import { useEffect, useState } from "react";
 import { Step } from "app/components/Step";
@@ -66,9 +66,10 @@ export default function Index() {
     {
       handle: "activated-extension",
       title: "Add to customer accounts",
-      description: "Add the app to your customer accounts",
+      description:
+        "Allow buyers to manage their whishlist. Add it now to customer accounts.",
       actionTitle: "Add",
-      actionLink: `shopify://admin/settings/checkout/editor?page=checkout&context=apps&app=${APP_ID}&collection=wishlist-collection`,
+      actionLink: `shopify://admin/settings/checkout/editor?page=order-list&context=apps&app=${APP_ID}&collection=wishlist-collection`,
       isComplete: completeOverrides["activated-extension"],
       onNavigate: () => {
         setCompleteOverrides((prev) => ({
@@ -84,19 +85,23 @@ export default function Index() {
   );
 
   return (
-    <Page>
+    <Page title="Wishlist Onboarding">
       <TitleBar title="Customer Account Wishlist" />
-      <Card>
-        {steps.map((step) => (
-          <Step
-            key={step.handle}
-            {...step}
-            onSetActive={() => setActiveStep(step.handle)}
-            isActive={activeStep === step.handle}
-            isComplete={step.isComplete}
-          ></Step>
-        ))}
-      </Card>
+      <Layout>
+        <Layout.Section>
+          <Card padding="500">
+            {steps.map((step) => (
+              <Step
+                key={step.handle}
+                {...step}
+                onSetActive={() => setActiveStep(step.handle)}
+                isActive={activeStep === step.handle}
+                isComplete={step.isComplete}
+              ></Step>
+            ))}
+          </Card>
+        </Layout.Section>
+      </Layout>
     </Page>
   );
 }
