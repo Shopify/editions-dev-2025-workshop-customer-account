@@ -68,7 +68,7 @@ export default function Index() {
       title: "Add to customer accounts",
       description:
         "Allow buyers to manage their whishlist. Add it now to customer accounts.",
-      actionTitle: "Add",
+      actionTitle: "Add in the editor",
       actionLink: `shopify://admin/settings/checkout/editor?page=order-list&context=apps&app=${APP_ID}&collection=wishlist-collection`,
       isComplete: completeOverrides["activated-extension"],
       onNavigate: () => {
@@ -96,7 +96,6 @@ export default function Index() {
                 {...step}
                 onSetActive={() => setActiveStep(step.handle)}
                 isActive={activeStep === step.handle}
-                isComplete={step.isComplete}
               ></Step>
             ))}
           </Card>
