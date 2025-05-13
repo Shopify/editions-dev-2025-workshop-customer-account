@@ -1,36 +1,29 @@
 import {
-  reactExtension,
-  Button,
-  Heading,
-  BlockStack,
   useSettings,
   useExtension,
-  Banner,
   useAuthenticatedAccountCustomer,
-  useApi,
-} from "@shopify/ui-extensions-react/customer-account";
+} from "@shopify/ui-extensions/customer-account/preact";
+
 import { ProductsGrid } from "../../_shared/components/ProductsGrid";
 import { ProductItem } from "../../_shared/components/ProductItem";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "preact/hooks";
 import {
   fetchWishlistedProductIds,
   getProductsByTagQuery,
   updateWishlistItems,
 } from "../../_shared/graphql";
 import type { Product } from "../../_shared/types";
+import { render } from "preact";
 
-export default reactExtension(
-  "customer-account.order-index.block.render",
-  async (api) => {
-    const { product_tag: productTag } = api.settings.current;
+export default async function () {
+  const { product_tag: productTag } = shopify.settings.current;
 
-    const products = productTag
-      ? await fetchProductsByTag(productTag as string)
-      : [];
+  const products = productTag
+    ? await fetchProductsByTag(productTag as string)
+    : [];
 
-    return <OrderListPageExtension initialProducts={products} />;
-  },
-);
+  render(<OrderListPageExtension initialProducts={products} />, document.body);
+}
 
 function OrderListPageExtension({
   initialProducts,
@@ -42,8 +35,6 @@ function OrderListPageExtension({
     useState<Product[]>(initialProducts);
   const isInEditor = useExtension().editor?.type === "checkout";
   const isFirstRender = useRef(true);
-
-  const api = useApi();
 
   const { product_tag: productTag } = useSettings();
 
@@ -73,24 +64,24 @@ function OrderListPageExtension({
 
     await updateWishlistItems(customerId, newWishlist);
 
-    api.ui.toast.show("Product added to wishlist");
+    shopify.ui.toast.show("Product added to wishlist");
   }
 
   if (isInEditor && !productTag) {
     return (
-      <Banner status="critical">
+      <s-banner tone="critical">
         Please set a product tag in the extension settings to display products.
         This message will only be shown in the editor.
-      </Banner>
+      </s-banner>
     );
   }
 
   if (suggestedProducts.length === 0 && isInEditor && productTag) {
     return (
-      <Banner status="warning">
+      <s-banner tone="warning">
         No products found for the selected tag. This message will only be shown
         in the editor.
-      </Banner>
+      </s-banner>
     );
   }
 
@@ -98,8 +89,8 @@ function OrderListPageExtension({
     return null;
   }
   return (
-    <BlockStack>
-      <Heading>Products we think you'll love</Heading>
+    <s-stack direction="block" gap="base">
+      <s-heading>Products we think you'll love</s-heading>
       <ProductsGrid>
         {suggestedProducts.map((product) => (
           <ProductItem
@@ -108,9 +99,9 @@ function OrderListPageExtension({
             title={product.title}
             price={product.priceRange.minVariantPrice}
             actions={
-              <Button
-                kind="secondary"
-                onPress={() => {
+              <s-button
+                variant="secondary"
+                onClick={() => {
                   if (isInEditor) {
                     return;
                   }
@@ -118,12 +109,12 @@ function OrderListPageExtension({
                 }}
               >
                 Add to Wishlist
-              </Button>
+              </s-button>
             }
           />
         ))}
       </ProductsGrid>
-    </BlockStack>
+    </s-stack>
   );
 }
 
