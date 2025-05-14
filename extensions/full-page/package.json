@@ -1,15 +1,10 @@
 {
-  "name": "full-page",
+  "name": "remote-dom-1",
   "private": true,
   "version": "1.0.0",
   "license": "UNLICENSED",
   "dependencies": {
-    "react": "^18.0.0",
-    "@shopify/ui-extensions": "2025.4.x",
-    "@shopify/ui-extensions-react": "2025.4.x",
-    "react-reconciler": "0.29.0"
-  },
-  "devDependencies": {
-    "@types/react": "^18.0.0"
+    "preact": "^10.10.x",
+    "@shopify/ui-extensions": "2025-10"
   }
 }

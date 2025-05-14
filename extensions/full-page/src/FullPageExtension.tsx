@@ -1,21 +1,14 @@
+import { render } from "preact";
+import { useState, useEffect } from "preact/hooks";
+
 import {
-  BlockStack,
-  reactExtension,
-  Page,
-  Heading,
-  Card,
-  Text,
-  Spinner,
-  View,
   useExtension,
   useSettings,
   useAuthenticatedAccountCustomer,
-  useApi,
-} from "@shopify/ui-extensions-react/customer-account";
-import { useEffect, useState } from "react";
-import type { Product, Shop } from "../../_shared/types";
-import WishlistItem from "./WishlistItem";
+} from "@shopify/ui-extensions/customer-account/preact";
+
 import { ProductsGrid } from "../../_shared/components/ProductsGrid";
+
 import {
   fetchWishlistedProductIds,
   getProductsQuery,
@@ -23,17 +16,21 @@ import {
   getShopDataQuery,
   updateWishlistItems,
 } from "../../_shared/graphql";
-export default reactExtension("customer-account.page.render", async (api) => {
-  return <WishlistedItems />;
-});
+import { WishlistItem } from "./WishlistItem";
+
+import type { Product, Shop } from "../../_shared/types";
+
+export default function () {
+  render(<WishlistedItems />, document.body);
+}
 
 function WishlistedItems() {
   let { show_remove_button: showRemoveButton } = useSettings();
-
   showRemoveButton = showRemoveButton ?? true;
 
   const { editor } = useExtension();
   const { id: customerId } = useAuthenticatedAccountCustomer();
+
   const [wishlist, setWishlist] = useState<Product[]>([]);
   const [shopData, setShopData] = useState<Shop | null>(null);
   const [loading, setLoading] = useState(true);
@@ -86,22 +83,22 @@ function WishlistedItems() {
   }
 
   return (
-    <Page title="Wishlist">
+    <s-page heading="Your Wishlist">
       {!loading && wishlist.length === 0 ? (
-        <Card padding>
-          <BlockStack inlineAlignment="center">
-            <Heading level={2}>Your wishlist is empty</Heading>
-            <Text>No items in your wishlist</Text>
-          </BlockStack>
-        </Card>
+        <s-section>
+          <s-stack alignItems="center">
+            <s-heading>Your wishlist is empty</s-heading>
+            <s-text>No items in your wishlist</s-text>
+          </s-stack>
+        </s-section>
       ) : (
         <>
           {loading ? (
-            <Card padding>
-              <View inlineAlignment="center">
-                <Spinner size="large" />
-              </View>
-            </Card>
+            <s-section>
+              <s-stack gap="large" direction="inline" justifyContent="center">
+                <s-spinner size="large" />
+              </s-stack>
+            </s-section>
           ) : (
             <ProductsGrid>
               {wishlist.map((product) => (
@@ -122,7 +119,7 @@ function WishlistedItems() {
           )}
         </>
       )}
-    </Page>
+    </s-page>
   );
 }
 

@@ -1,5 +1,21 @@
-# Action Extension
+# Customer account UI Extension
 
-Admin action extensions enable app developers to build custom functionality into the context of Shopify Admin. These extensions surface as launchable menu actions that open interactive modals at various extension targets and enhance the merchant experience. Developers can build the content of these extensions using Shopify's UI Extension components for Admin.
+## Prerequisites
 
-Learn more about Admin action extensions in Shopify’s [developer documentation](https://shopify.dev/docs/apps/admin/admin-actions-and-blocks).
+Before you start building your extension, make sure that you’ve created a [development store](https://shopify.dev/docs/apps/tools/development-stores) with the [Checkout and Customer Accounts Extensibility](https://shopify.dev/docs/api/release-notes/developer-previews#previewing-new-features).
+
+## Your new Extension
+
+Your new extension contains the following files:
+
+- `README.md`, the file you are reading right now.
+- `shopify.extension.toml`, the configuration file for your extension. This file defines your extension’s name.
+- `src/*.jsx`, the source code for your extension.
+- `locales/en.default.json` and `locales/fr.json`, which contain translations used to [localized your extension](https://shopify.dev/docs/apps/checkout/best-practices/localizing-ui-extensions).
+
+## Useful Links
+
+- [Customer account UI extension documentation](https://shopify.dev/docs/api/customer-account-ui-extensions)
+  - [Configuration](https://shopify.dev/docs/api/customer-account-ui-extensions/unstable/configuration)
+  - [API Reference](https://shopify.dev/docs/api/customer-account-ui-extensions/unstable/apis)
+  - [UI Components](https://shopify.dev/docs/api/customer-account-ui-extensions/unstable/components)
