@@ -58,12 +58,9 @@ function WishlistedItems() {
       (item) => item !== productIdToRemove,
     );
 
+    setWishlist(wishlist.filter((item) => item.id !== productIdToRemove));
+
     if (isInEditor) {
-      console.log(
-        "CLICKED REMOVE ITEM FROM WISHLIST",
-        productIdToRemove,
-        newWishlistItems,
-      );
       const newWishlist = await fetchProducts(newWishlistItems);
       setWishlist(newWishlist);
     }
@@ -90,11 +87,9 @@ function WishlistedItems() {
       ) : (
         <>
           {loading ? (
-            <s-section>
-              <s-stack gap="large" direction="inline" justifyContent="center">
-                <s-spinner size="large" />
-              </s-stack>
-            </s-section>
+            <s-stack gap="large" direction="inline" justifyContent="center">
+              <s-spinner size="large" />
+            </s-stack>
           ) : (
             <ProductsGrid>
               {wishlist.map((product) => (
