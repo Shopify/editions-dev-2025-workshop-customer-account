@@ -3,7 +3,6 @@ import { useState, useEffect } from "preact/hooks";
 
 import {
   useExtension,
-  useSettings,
   useAuthenticatedAccountCustomer,
 } from "@shopify/ui-extensions/customer-account/preact";
 
@@ -25,9 +24,6 @@ export default function () {
 }
 
 function WishlistedItems() {
-  let { show_remove_button: showRemoveButton } = useSettings();
-  showRemoveButton = showRemoveButton ?? true;
-
   const { editor } = useExtension();
   const { id: customerId } = useAuthenticatedAccountCustomer();
 
@@ -106,7 +102,6 @@ function WishlistedItems() {
                   key={product.id}
                   product={product}
                   shopUrl={shopData.url}
-                  showRemoveButton={showRemoveButton as boolean}
                   onRemoveClick={() => {
                     if (isInEditor) {
                       return;
