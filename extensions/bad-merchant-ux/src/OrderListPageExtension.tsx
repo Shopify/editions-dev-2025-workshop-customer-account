@@ -99,17 +99,20 @@ function OrderListPageExtension({
             title={product.title}
             price={product.priceRange.minVariantPrice}
             actions={
-              <s-button
-                variant="secondary"
-                onClick={() => {
-                  if (isInEditor) {
-                    return;
-                  }
-                  addToWishlist(product.id);
-                }}
-              >
-                Add to Wishlist
-              </s-button>
+              <s-box inlineSize="100%">
+                <s-button
+                  inlineSize="fill"
+                  variant="secondary"
+                  onClick={() => {
+                    if (isInEditor) {
+                      return;
+                    }
+                    addToWishlist(product.id);
+                  }}
+                >
+                  Add to Wishlist
+                </s-button>
+              </s-box>
             }
           />
         ))}

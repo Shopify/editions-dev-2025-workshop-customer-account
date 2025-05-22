@@ -3,7 +3,6 @@ import { useState, useEffect } from "preact/hooks";
 
 import {
   useExtension,
-  useSettings,
   useAuthenticatedAccountCustomer,
 } from "@shopify/ui-extensions/customer-account/preact";
 
@@ -25,9 +24,6 @@ export default function () {
 }
 
 function WishlistedItems() {
-  let { show_remove_button: showRemoveButton } = useSettings();
-  showRemoveButton = showRemoveButton ?? true;
-
   const { editor } = useExtension();
   const { id: customerId } = useAuthenticatedAccountCustomer();
 
@@ -62,12 +58,9 @@ function WishlistedItems() {
       (item) => item !== productIdToRemove,
     );
 
+    setWishlist(wishlist.filter((item) => item.id !== productIdToRemove));
+
     if (isInEditor) {
-      console.log(
-        "CLICKED REMOVE ITEM FROM WISHLIST",
-        productIdToRemove,
-        newWishlistItems,
-      );
       const newWishlist = await fetchProducts(newWishlistItems);
       setWishlist(newWishlist);
     }
@@ -94,11 +87,9 @@ function WishlistedItems() {
       ) : (
         <>
           {loading ? (
-            <s-section>
-              <s-stack gap="large" direction="inline" justifyContent="center">
-                <s-spinner size="large" />
-              </s-stack>
-            </s-section>
+            <s-stack gap="large" direction="inline" justifyContent="center">
+              <s-spinner size="large" />
+            </s-stack>
           ) : (
             <ProductsGrid>
               {wishlist.map((product) => (
@@ -106,7 +97,6 @@ function WishlistedItems() {
                   key={product.id}
                   product={product}
                   shopUrl={shopData.url}
-                  showRemoveButton={showRemoveButton as boolean}
                   onRemoveClick={() => {
                     if (isInEditor) {
                       return;

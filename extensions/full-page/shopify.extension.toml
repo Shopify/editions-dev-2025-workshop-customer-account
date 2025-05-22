@@ -14,9 +14,3 @@ target = "customer-account.page.render"
 # Gives your extension access to directly query Shopify’s storefront API.
 # https://shopify.dev/docs/api/customer-account-ui-extensions/unstable/configuration#api-access
 api_access = true
-
-[[extensions.settings.fields]]
-key = "show_remove_button"
-type = "boolean"
-name = "Show remove button?"
-description = "If disabled, the add to remove button will not be shown for each wishlist item."
