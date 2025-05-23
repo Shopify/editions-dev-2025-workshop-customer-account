@@ -1,2 +1,2 @@
-export const METAFIELD_NAMESPACE = "$app:wishlist";
-export const METAFIELD_KEY = "items";
+export const METAFIELD_NAMESPACE = "$app";
+export const METAFIELD_KEY = "wishlist-items";
