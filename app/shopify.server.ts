@@ -22,90 +22,10 @@ const shopify = shopifyApp({
     unstable_newEmbeddedAuthStrategy: true,
     removeRest: true,
   },
-  hooks: {
-    afterAuth: async ({ admin, session }) => {
-      console.log("###afterAuth");
-      await shopify.registerWebhooks({ session });
-
-      try {
-        const metafield = await getMetafield(admin);
-
-        if (metafield == null) {
-          await createMetafield(admin);
-        }
-      } catch (error: any) {
-        if ("graphQLErrors" in error) {
-          console.error(error.graphQLErrors);
-        } else {
-          console.error(error);
-        }
-
-        throw error;
-      }
-    },
-  },
   ...(process.env.SHOP_CUSTOM_DOMAIN
     ? { customShopDomains: [process.env.SHOP_CUSTOM_DOMAIN] }
     : {}),
 });
-
-async function getMetafield(admin: AdminApiContext<ShopifyRestResources>) {
-  const response = await admin.graphql(getMetafieldQuery, {
-    variables: {
-      key: "items",
-      namespace: "$app:wishlist",
-      ownerType: "CUSTOMER",
-    },
-  });
-
-  const json = await response.json();
-  return json.data?.metafieldDefinitions.nodes[0];
-}
-
-const getMetafieldQuery = `#graphql
-query getMetafieldDefinition($key: String!, $namespace: String!, $ownerType: MetafieldOwnerType!) {
-  metafieldDefinitions(first: 1, key: $key, namespace: $namespace, ownerType: $ownerType) {
-    nodes {
-      id
-    }
-  }
-}
-`;
-
-async function createMetafield(admin: AdminApiContext<ShopifyRestResources>) {
-  const response = await admin.graphql(createMetafieldMutation, {
-    variables: {
-      definition: {
-        access: {
-          customerAccount: "READ_WRITE",
-        },
-        key: "items",
-        name: "Wishlist items",
-        namespace: "$app:wishlist",
-        ownerType: "CUSTOMER",
-        type: "list.product_reference",
-      },
-    },
-  });
-
-  const json = await response.json();
-  console.log(JSON.stringify(json, null, 2));
-}
-
-const createMetafieldMutation = `#graphql
-mutation metafieldDefinitionCreate($definition: MetafieldDefinitionInput!) {
-  metafieldDefinitionCreate(definition: $definition) {
-    createdDefinition {
-      key
-      namespace
-    }
-    userErrors {
-      field
-      message
-    }
-  }
-}
-`;
 
 export default shopify;
 export const apiVersion = ApiVersion.January25;

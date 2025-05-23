@@ -20,3 +20,9 @@ use_legacy_install_flow = false
 
 [auth]
 redirect_urls = [ ]
+
+[customer.metafields.app.wishlist-items]
+type = "list.product_reference"
+name = "Wishlist items"
+description = "Wishlist items for a customer"
+access.customer_account = "read_write"
