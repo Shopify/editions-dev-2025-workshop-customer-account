@@ -1,8 +1,10 @@
 import { render } from "preact";
-import { useState, useEffect } from "preact/hooks";
-
+import { useState, useEffect, useReducer } from "preact/hooks";
+import { Router, Route } from "preact-router";
 import {
   useExtension,
+  useApi,
+  useNavigationCurrentEntry,
   useAuthenticatedAccountCustomer,
 } from "@shopify/ui-extensions/customer-account/preact";
 
@@ -19,6 +21,16 @@ import { WishlistItem } from "./WishlistItem";
 
 import type { Product, Shop } from "../../_shared/types";
 
+addEventListener("popstate", (event) => {
+  console.log("global popstate", event);
+});
+
+window.addEventListener("popstate", (event) => {
+  console.log("window popstate", event);
+});
+
+console.log("### same?", window, globalThis, self);
+
 export default function () {
   render(<WishlistedItems />, document.body);
 }
@@ -26,6 +38,10 @@ export default function () {
 function WishlistedItems() {
   const { editor } = useExtension();
   const { id: customerId } = useAuthenticatedAccountCustomer();
+  const currentEntry = useNavigationCurrentEntry();
+
+  console.log("currentEntry updated", currentEntry);
+  // console.log("history", history);
 
   const [wishlist, setWishlist] = useState<Product[]>([]);
   const [shopData, setShopData] = useState<Shop | null>(null);
@@ -75,6 +91,9 @@ function WishlistedItems() {
     }
   }
 
+  const url = new URL(currentEntry?.url);
+  const path = url.pathname;
+
   return (
     <s-page heading="Your Wishlist">
       {!loading && wishlist.length === 0 ? (
@@ -86,6 +105,10 @@ function WishlistedItems() {
         </s-section>
       ) : (
         <>
+          <Router>
+            <Route path="/" component={HomeComponent} />
+            <Route path="/test" component={TestComponent} />
+          </Router>
           {loading ? (
             <s-stack gap="large" direction="inline" justifyContent="center">
               <s-spinner size="large" />
@@ -107,6 +130,9 @@ function WishlistedItems() {
               ))}
             </ProductsGrid>
           )}
+          <s-link href="/test">Test</s-link>
+          <s-link href="/foo">Foo</s-link>
+          <s-link href="/">Home</s-link>
         </>
       )}
     </s-page>
@@ -160,4 +186,12 @@ async function fetchProducts(productIds?: string[]) {
   const data = await response.json();
 
   return data?.data?.nodes.filter((node) => node !== null);
+}
+
+function HomeComponent() {
+  return <s-heading>Home</s-heading>;
+}
+
+function TestComponent() {
+  return <s-heading>Test</s-heading>;
 }
