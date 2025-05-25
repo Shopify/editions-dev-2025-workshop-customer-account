@@ -18,9 +18,6 @@ export default function () {
 }
 
 function WishlistedItemsPage() {
-  const { editor } = shopify.extension;
-  const isInEditor = editor?.type === "checkout";
-
   const { id: customerId } = shopify.authenticatedAccount.customer.current;
 
   const [shopData, setShopData] = useState<Shop | null>(null);
@@ -34,15 +31,13 @@ function WishlistedItemsPage() {
       const shopData = await shopDataPromise;
       setShopData(shopData);
 
-      const products = isInEditor
-        ? await fetchPreviewProducts()
-        : await fetchProducts(await fetchWishlistedProductIds());
+      const products = await fetchProducts(await fetchWishlistedProductIds());
 
       setWishlist(products);
       setLoading(false);
     }
     run();
-  }, [isInEditor]);
+  }, []);
 
   async function removeItemFromWishlist(
     wishlistItems: string[],
@@ -87,7 +82,6 @@ function WishlistedItemsPage() {
                   product={product}
                   shopUrl={shopData.url}
                   onRemoveClick={() => {
-                    if (isInEditor) return;
                     removeItemFromWishlist(wishlistedProductIds, product.id);
                   }}
                 />
@@ -114,22 +108,6 @@ async function fetchShopData() {
 
   const data = await response.json();
   return data?.data?.shop;
-}
-
-async function fetchPreviewProducts() {
-  const response = await fetch(
-    "shopify://storefront/api/unstable/graphql.json",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(getFirst3ProductsQuery()),
-    },
-  );
-
-  const data = await response.json();
-  return data?.data?.products?.nodes.filter((node) => node !== null);
 }
 
 async function fetchProducts(productIds?: string[]) {

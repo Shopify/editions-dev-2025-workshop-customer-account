@@ -26,9 +26,6 @@ function OrderListPageExtension({
 }: {
   initialProducts: Product[];
 }) {
-  const { editor } = shopify.extension;
-  const isInEditor = editor?.type === "checkout";
-
   const { product_tag: productTag = "wishlist_suggestions" } = useSettings();
 
   const { id: customerId } = shopify.authenticatedAccount.customer.current;
@@ -66,24 +63,6 @@ function OrderListPageExtension({
     shopify.ui.toast.show("Product added to wishlist");
   }
 
-  if (isInEditor && !productTag) {
-    return (
-      <s-banner tone="critical">
-        Please set a product tag in the extension settings to display products.
-        This message will only be shown in the editor.
-      </s-banner>
-    );
-  }
-
-  if (suggestedProducts.length === 0 && isInEditor && productTag) {
-    return (
-      <s-banner tone="warning">
-        No products found for the selected tag. This message will only be shown
-        in the editor.
-      </s-banner>
-    );
-  }
-
   if (suggestedProducts.length === 0) {
     return null;
   }
@@ -104,7 +83,6 @@ function OrderListPageExtension({
                   inline-size="fill"
                   variant="secondary"
                   onClick={() => {
-                    if (isInEditor) return;
                     addToWishlist(product.id);
                   }}
                 >

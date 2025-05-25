@@ -1,7 +1,0 @@
-[[extensions]]
-name = "t:collection_name"
-handle = "wishlist-collection"
-type = "editor_extension_collection"
-uid = "57f06b86-c07d-4fdc-9fae-7fdc7ae7d96d"
-# Add the handles of the extensions you want in this collection here
-includes=["wishlist-suggestions-inline", "wishlist-page"]
