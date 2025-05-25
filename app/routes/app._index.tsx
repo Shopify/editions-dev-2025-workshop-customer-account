@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useRevalidator } from "@remix-run/react";
-import { Page, Card, Text, Layout } from "@shopify/polaris";
+import { Page, Card, Layout } from "@shopify/polaris";
 import { useEffect, useState } from "react";
 import { Step } from "app/components/Step";
 import { TitleBar } from "@shopify/app-bridge-react";
@@ -67,7 +67,7 @@ export default function Index() {
       handle: "activated-extension",
       title: "Add to customer accounts",
       description:
-        "Allow buyers to manage their whishlist. Add it now to customer accounts.",
+        "Allow buyers to manage their wishlist. Add it now to customer accounts.",
       actionTitle: "Add in the editor",
       actionLink: `shopify://admin/settings/checkout/editor?page=order-list&context=apps&app=${APP_ID}&collection=wishlist-collection`,
       isComplete: completeOverrides["activated-extension"],

@@ -84,9 +84,7 @@ function OrderListPageExtension({
     );
   }
 
-  if (suggestedProducts.length === 0) {
-    return null;
-  }
+  if (suggestedProducts.length === 0) return null;
 
   return (
     <s-stack direction="block" gap="base">
