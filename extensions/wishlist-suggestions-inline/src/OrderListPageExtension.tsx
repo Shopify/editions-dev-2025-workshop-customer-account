@@ -63,9 +63,7 @@ function OrderListPageExtension({
     shopify.ui.toast.show("Product added to wishlist");
   }
 
-  if (suggestedProducts.length === 0) {
-    return null;
-  }
+  if (suggestedProducts.length === 0) return null;
 
   return (
     <s-stack direction="block" gap="base">
