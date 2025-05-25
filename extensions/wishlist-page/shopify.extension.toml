@@ -1,8 +1,8 @@
 
 api_version = "2025-10"
 [[extensions]]
-name = "Full Page"
-handle = "full-page"
+name = "Wishlist Page"
+handle = "wishlist-page"
 type = "ui_extension"
 uid = "f4478831-cbc1-4bfc-a33e-d58cada1df31"
 

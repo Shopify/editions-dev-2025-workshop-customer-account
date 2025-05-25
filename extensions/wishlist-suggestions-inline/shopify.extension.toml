@@ -6,8 +6,8 @@
 api_version = "2025-10"
 
 [[extensions]]
-name = "bad-merchant-ux"
-handle = "bad-merchant-ux"
+name = "Wishlist Suggestions"
+handle = "wishlist-suggestions-inline"
 uid = "c7670e54-45bc-521f-c0e4-6d1ec35c2a24b4607541"
 type = "ui_extension"
 

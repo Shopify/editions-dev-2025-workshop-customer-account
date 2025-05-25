@@ -1,11 +1,5 @@
 import { render } from "preact";
 import { useState, useEffect } from "preact/hooks";
-
-import {
-  useExtension,
-  useAuthenticatedAccountCustomer,
-} from "@shopify/ui-extensions/customer-account/preact";
-
 import { ProductsGrid } from "../../_shared/components/ProductsGrid";
 
 import {
@@ -20,30 +14,30 @@ import { WishlistItem } from "./WishlistItem";
 import type { Product, Shop } from "../../_shared/types";
 
 export default function () {
-  render(<WishlistedItems />, document.body);
+  render(<WishlistedItemsPage />, document.body);
 }
 
-function WishlistedItems() {
-  const { editor } = useExtension();
-  const { id: customerId } = useAuthenticatedAccountCustomer();
+function WishlistedItemsPage() {
+  const { editor } = shopify.extension;
+  const isInEditor = editor?.type === "checkout";
 
-  const [wishlist, setWishlist] = useState<Product[]>([]);
+  const { id: customerId } = shopify.authenticatedAccount.customer.current;
+
   const [shopData, setShopData] = useState<Shop | null>(null);
   const [loading, setLoading] = useState(true);
+  const [wishlist, setWishlist] = useState<Product[]>([]);
   const wishlistedProductIds = wishlist.map((product) => product.id);
-
-  const isInEditor = editor?.type === "checkout";
 
   useEffect(() => {
     async function run() {
       const shopDataPromise = fetchShopData();
+      const shopData = await shopDataPromise;
+      setShopData(shopData);
 
       const products = isInEditor
         ? await fetchPreviewProducts()
         : await fetchProducts(await fetchWishlistedProductIds());
-      const shopData = await shopDataPromise;
 
-      setShopData(shopData);
       setWishlist(products);
       setLoading(false);
     }
@@ -59,11 +53,6 @@ function WishlistedItems() {
     );
 
     setWishlist(wishlist.filter((item) => item.id !== productIdToRemove));
-
-    if (isInEditor) {
-      const newWishlist = await fetchProducts(newWishlistItems);
-      setWishlist(newWishlist);
-    }
 
     try {
       await updateWishlistItems(customerId, newWishlistItems);
@@ -98,9 +87,7 @@ function WishlistedItems() {
                   product={product}
                   shopUrl={shopData.url}
                   onRemoveClick={() => {
-                    if (isInEditor) {
-                      return;
-                    }
+                    if (isInEditor) return;
                     removeItemFromWishlist(wishlistedProductIds, product.id);
                   }}
                 />

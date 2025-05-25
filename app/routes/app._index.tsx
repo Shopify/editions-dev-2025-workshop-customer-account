@@ -1,12 +1,12 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useRevalidator } from "@remix-run/react";
 import { Page, Card, Text, Layout } from "@shopify/polaris";
-import { authenticate } from "../shopify.server";
 import { useEffect, useState } from "react";
 import { Step } from "app/components/Step";
 import { TitleBar } from "@shopify/app-bridge-react";
+import { authenticate } from "../shopify.server";
 
-const APP_ID = "242741477377";
+const APP_ID = "YOU_APP_ID_HERE";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin } = await authenticate.admin(request);
@@ -72,6 +72,7 @@ export default function Index() {
       actionLink: `shopify://admin/settings/checkout/editor?page=order-list&context=apps&app=${APP_ID}&collection=wishlist-collection`,
       isComplete: completeOverrides["activated-extension"],
       onNavigate: () => {
+        // To do: update this with a check for the extension being installed, once that's available
         setCompleteOverrides((prev) => ({
           ...prev,
           "activated-extension": true,

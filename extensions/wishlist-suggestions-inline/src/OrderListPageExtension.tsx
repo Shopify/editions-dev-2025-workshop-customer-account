@@ -1,8 +1,4 @@
-import {
-  useSettings,
-  useExtension,
-  useAuthenticatedAccountCustomer,
-} from "@shopify/ui-extensions/customer-account/preact";
+import { useSettings } from "@shopify/ui-extensions/customer-account/preact";
 
 import { ProductsGrid } from "../../_shared/components/ProductsGrid";
 import { ProductItem } from "../../_shared/components/ProductItem";
@@ -30,13 +26,16 @@ function OrderListPageExtension({
 }: {
   initialProducts: Product[];
 }) {
-  const { id: customerId } = useAuthenticatedAccountCustomer();
+  const { editor } = shopify.extension;
+  const isInEditor = editor?.type === "checkout";
+
+  const { product_tag: productTag = "wishlist_suggestions" } = useSettings();
+
+  const { id: customerId } = shopify.authenticatedAccount.customer.current;
+
   const [suggestedProducts, setSuggestedProducts] =
     useState<Product[]>(initialProducts);
-  const isInEditor = useExtension().editor?.type === "checkout";
   const isFirstRender = useRef(true);
-
-  const { product_tag: productTag } = useSettings();
 
   useEffect(() => {
     // since we have initial products, we don't need to fetch them the first time
@@ -46,7 +45,7 @@ function OrderListPageExtension({
       return;
     }
 
-    // this could be debounced in the editor because it is being called on every keystroke
+    // this could be debounced in the editor, it is currently being called on every keystroke
     async function run() {
       if (!productTag) {
         setSuggestedProducts([]);
@@ -88,6 +87,7 @@ function OrderListPageExtension({
   if (suggestedProducts.length === 0) {
     return null;
   }
+
   return (
     <s-stack direction="block" gap="base">
       <s-heading>Products we think you'll love</s-heading>
@@ -99,14 +99,12 @@ function OrderListPageExtension({
             title={product.title}
             price={product.priceRange.minVariantPrice}
             actions={
-              <s-box inlineSize="100%">
+              <s-box inline-size="100%">
                 <s-button
-                  inlineSize="fill"
+                  inline-size="fill"
                   variant="secondary"
                   onClick={() => {
-                    if (isInEditor) {
-                      return;
-                    }
+                    if (isInEditor) return;
                     addToWishlist(product.id);
                   }}
                 >
