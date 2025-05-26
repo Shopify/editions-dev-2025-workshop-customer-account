@@ -31,13 +31,12 @@ function WishlistedItemsPage() {
   useEffect(() => {
     async function run() {
       const shopDataPromise = fetchShopData();
-      const shopData = await shopDataPromise;
-      setShopData(shopData);
 
       const products = isInEditor
         ? await fetchPreviewProducts()
         : await fetchProducts(await fetchWishlistedProductIds());
 
+      setShopData(await shopDataPromise);
       setWishlist(products);
       setLoading(false);
     }
