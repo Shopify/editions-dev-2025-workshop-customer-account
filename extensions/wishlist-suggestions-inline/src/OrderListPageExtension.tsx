@@ -99,7 +99,7 @@ function OrderListPageExtension({
             actions={
               <s-box inlineSize="100%">
                 <s-button
-                  inline-size="fill"
+                  inlineSize="fill"
                   variant="secondary"
                   onClick={() => {
                     if (isInEditor) return;
