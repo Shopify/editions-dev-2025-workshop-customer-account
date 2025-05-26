@@ -12,7 +12,7 @@ import type { Product } from "../../_shared/types";
 import { render } from "preact";
 
 export default async function () {
-  const { product_tag: productTag } = shopify.settings.current;
+  const { product_tag: productTag = "wishlist_suggestions" } = useSettings();
 
   const products = productTag
     ? await fetchProductsByTag(productTag as string)
