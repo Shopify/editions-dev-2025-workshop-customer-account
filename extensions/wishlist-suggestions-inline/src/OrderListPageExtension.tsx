@@ -97,7 +97,7 @@ function OrderListPageExtension({
             title={product.title}
             price={product.priceRange.minVariantPrice}
             actions={
-              <s-box inline-size="100%">
+              <s-box inlineSize="100%">
                 <s-button
                   inline-size="fill"
                   variant="secondary"
