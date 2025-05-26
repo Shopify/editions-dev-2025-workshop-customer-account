@@ -19,14 +19,14 @@ export function WishlistItem({ product, onRemoveClick, shopUrl }: Props) {
             variant="primary"
             target="_blank"
             href={`${shopUrl}/products/${product.handle}`}
-            inline-size="fill"
+            inlineSize="fill"
           >
             Buy now
           </s-button>
           <s-button
             variant="secondary"
             onClick={onRemoveClick}
-            inline-size="fill"
+            inlineSize="fill"
           >
             Remove
           </s-button>
