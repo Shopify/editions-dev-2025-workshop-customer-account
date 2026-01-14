@@ -962,7 +962,7 @@
 
 "@graphql-codegen/client-preset@4.7.0", "@graphql-codegen/client-preset@^4.8.1":
   version "4.7.0"
-  resolved "https://registry.npmjs.org/@graphql-codegen/client-preset/-/client-preset-4.7.0.tgz"
+  resolved "https://registry.yarnpkg.com/@graphql-codegen/client-preset/-/client-preset-4.7.0.tgz#2d9422e7d51bc3d0e2134daa056c75fd0d7e7ed6"
   integrity sha512-U15GrsvSd0k6Wgo3vFN/oJMTMWUtbEkjQhifrfzkJpvUK+cqyB+C/SgLdSbzyxKd3GyMl8kfwgGr5K+yfksQ/g==
   dependencies:
     "@babel/helper-plugin-utils" "^7.20.2"
@@ -991,7 +991,7 @@
 
 "@graphql-codegen/gql-tag-operations@4.0.16":
   version "4.0.16"
-  resolved "https://registry.npmjs.org/@graphql-codegen/gql-tag-operations/-/gql-tag-operations-4.0.16.tgz"
+  resolved "https://registry.yarnpkg.com/@graphql-codegen/gql-tag-operations/-/gql-tag-operations-4.0.16.tgz#3538df9898bf7d8990e343d923297b989876e76e"
   integrity sha512-+R9OC2P0fS025VlCIKfjTR53cijMY3dPfbleuD4+wFaLY2rx0bYghU2YO5Y7AyqPNJLrw6p/R4ecnSkJ0odBDQ==
   dependencies:
     "@graphql-codegen/plugin-helpers" "^5.1.0"
@@ -1031,9 +1031,9 @@
     tslib "~2.6.0"
 
 "@graphql-codegen/typed-document-node@^5.1.0":
-  version "5.1.1"
-  resolved "https://registry.npmjs.org/@graphql-codegen/typed-document-node/-/typed-document-node-5.1.1.tgz"
-  integrity sha512-Bp/BrMZDKRwzuVeLv+pSljneqONM7gqu57ZaV34Jbncu2hZWMRDMfizTKghoEwwZbRCYYfJO9tA0sYVVIfI1kg==
+  version "5.1.2"
+  resolved "https://registry.yarnpkg.com/@graphql-codegen/typed-document-node/-/typed-document-node-5.1.2.tgz#a1a3da2d9fe1847831ada6e41e09c5bb81dd6b3c"
+  integrity sha512-jaxfViDqFRbNQmfKwUY8hDyjnLTw2Z7DhGutxoOiiAI0gE/LfPe0LYaVFKVmVOOD7M3bWxoWfu4slrkbWbUbEw==
   dependencies:
     "@graphql-codegen/plugin-helpers" "^5.1.0"
     "@graphql-codegen/visitor-plugin-common" "5.8.0"
@@ -1043,7 +1043,7 @@
 
 "@graphql-codegen/typescript-operations@4.5.0", "@graphql-codegen/typescript-operations@^4.1.0", "@graphql-codegen/typescript-operations@^4.5.1":
   version "4.5.0"
-  resolved "https://registry.npmjs.org/@graphql-codegen/typescript-operations/-/typescript-operations-4.5.0.tgz"
+  resolved "https://registry.yarnpkg.com/@graphql-codegen/typescript-operations/-/typescript-operations-4.5.0.tgz#7b52eddc2b440f243210ecb478096f1424dd05f1"
   integrity sha512-HIu9xB124MVAD1TTGM+iDeJbxtmm0dOolgEEr2uPEBH89i3ggmy+NsXGt7TrOQVDKumv5Df+6DTb59Hmc1qY7g==
   dependencies:
     "@graphql-codegen/plugin-helpers" "^5.1.0"
@@ -1081,7 +1081,7 @@
 
 "@graphql-codegen/visitor-plugin-common@5.7.1":
   version "5.7.1"
-  resolved "https://registry.npmjs.org/@graphql-codegen/visitor-plugin-common/-/visitor-plugin-common-5.7.1.tgz"
+  resolved "https://registry.yarnpkg.com/@graphql-codegen/visitor-plugin-common/-/visitor-plugin-common-5.7.1.tgz#45852ff994d6fba9aa24c84bea199663b159e8a9"
   integrity sha512-jnBjDN7IghoPy1TLqIE1E4O0XcoRc7dJOHENkHvzGhu0SnvPL6ZgJxkQiADI4Vg2hj/4UiTGqo8q/GRoZz22lQ==
   dependencies:
     "@graphql-codegen/plugin-helpers" "^5.1.0"
@@ -1372,7 +1372,7 @@
 
 "@graphql-tools/url-loader@8.0.16", "@graphql-tools/url-loader@^8.0.0", "@graphql-tools/url-loader@^8.0.15":
   version "8.0.16"
-  resolved "https://registry.npmjs.org/@graphql-tools/url-loader/-/url-loader-8.0.16.tgz"
+  resolved "https://registry.yarnpkg.com/@graphql-tools/url-loader/-/url-loader-8.0.16.tgz#c4d6d505269b50229725cc2d3a3ae85d0ad32776"
   integrity sha512-2VhQBkW/nvKwKJ6xrngl2YLuHSsBYH/oEhp0w56ZkNHOiPkLzEYPj74QeGBpCokf61/LrVBWg1KTpGwVh+l0UQ==
   dependencies:
     "@ardatan/sync-fetch" "^0.0.1"
@@ -7208,10 +7208,10 @@ postcss@^8.4.19, postcss@^8.4.43, postcss@^8.5.3, postcss@^8.5.6:
     picocolors "^1.1.1"
     source-map-js "^1.2.1"
 
-preact@*, preact@^10.10.x:
-  version "10.26.6"
-  resolved "https://registry.npmjs.org/preact/-/preact-10.26.6.tgz"
-  integrity sha512-5SRRBinwpwkaD+OqlBDeITlRgvd8I8QlxHJw9AxSdMNV6O+LodN9nUyYGpSF7sadHjs6RzeFShMexC6DbtWr9g==
+preact@*, preact@^10.26.x:
+  version "10.28.2"
+  resolved "https://registry.yarnpkg.com/preact/-/preact-10.28.2.tgz#4b668383afa4b4a2546bbe4bd1747e02e2360138"
+  integrity sha512-lbteaWGzGHdlIuiJ0l2Jq454m6kcpI1zNje6d8MlGAFlYvP2GO4ibnat7P74Esfz4sPTdM6UxtTwh/d3pwM9JA==
 
 prelude-ls@^1.2.1:
   version "1.2.1"
